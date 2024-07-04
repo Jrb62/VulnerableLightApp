@@ -99,8 +99,8 @@ if(!string.IsNullOrEmpty(test))
 
 if (string.IsNullOrEmpty(url))
 {
-    app.Urls.Add("http://localhost:4000");
-    app.Urls.Add("https://localhost:3000");
+    app.Urls.Add("http://0.0.0.0:4000");
+    app.Urls.Add("https://0.0.0.0:3000");
 }
 else app.Urls.Add(url.Substring("--url=".Length));
 
