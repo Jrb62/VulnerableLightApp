@@ -1,3 +1,7 @@
+<p align="center">
+    <img src="./LogoVLA.png" alt="Dojo-101" style="width: 400px;" />
+</p>
+
 [![License: GNU GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 ![GitHub last commit](https://img.shields.io/github/last-commit/Aif4thah/VulnerableLightApp)
 [![.NET](https://github.com/Aif4thah/VulnerableLightApp/actions/workflows/dotnet.yml/badge.svg)](https://github.com/Aif4thah/VulnerableLightApp/actions/workflows/dotnet.yml)
@@ -29,7 +33,7 @@
 | CWE-287 | Improper Authentication | Medium |
 | CWE-319 | Cleartext Transmission of Sensitive Information | Easy |
 | CWE-326 | Inadequate Encryption Strength | Easy |
-| CWE-434 | Unrestricted Upload of File with Dangerous Type | Medium |
+| CWE-434 | Unrestricted Upload of File with Dangerous Type | Hard |
 | CWE-502 | Deserialization of Untrusted Data | Hard |
 | CWE-521 | Weak Password Requirements | Easy |
 | CWE-532 | Insertion of Sensitive Information into Log File | Easy |
@@ -52,9 +56,8 @@ VLA is designed as a vulnerable backend application, running in the following en
 
 ## 🔑 Hint & Write Up
 
-* Try reading [Dojo-101](https://github.com/Aif4thah/Dojo-101), this project contains all you need to hack this app !
-* [Buy me a coffee](https://github.com/sponsors/Aif4thah?frequency=one-time&sponsor=Aif4thah) to get the solution/exploit you want
-* [Become a sponsor](https://github.com/sponsors/Aif4thah?frequency=recurring&sponsor=Aif4thah) and get a complete Write Up
+* Try reading [Dojo-101](https://github.com/Aif4thah/Dojo-101), this project contains all you need to hack this app.
+* [Become a sponsor](https://github.com/sponsors/Aif4thah?frequency=recurring&sponsor=Aif4thah) and get access to the **full methodology** and **complete write-up**.
 
 
 ## ✅ Prerequisites
@@ -79,15 +82,19 @@ dotnet build
 
 ## 🔥 Run
 
+
+```PowerShell
+dotnet run [--url=<url>]
+```
+
+Alternatively, you can use bin files :
+
 ```PowerShell
 .\bin\Debug\net8.0\VulnerableWebApplication.exe [--url=<url>]
 ```
 
-Alternatively, you can run directly with
+> Your first request may return a 401 code due to unsuccessful authentication. Start Hacking !
 
-```PowerShell
-dotnet run
-```
 
 ## 🛠️ Debug 
 
@@ -100,6 +107,17 @@ where dotnet
 dotnet --version
 dotnet --list-sdks
 ```
+
+### Dotnet on Linux 
+
+Ubuntu / Debian exemple
+
+```bash
+wget https://packages.microsoft.com/config/debian/12/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
+dpkg -i packages-microsoft-prod.deb
+apt update && apt install -y dotnet-sdk-8.0 dotnet-runtime-8.0
+```
+
 
 ### Certificates
 

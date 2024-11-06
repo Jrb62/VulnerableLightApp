@@ -2,6 +2,8 @@
 using VulnerableWebApplication.VLAIdentity;
 using VulnerableWebApplication;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Http;
+using System.Text;
 
 namespace VulnerableWebApplication.MidlWare
 {
@@ -35,15 +37,16 @@ namespace VulnerableWebApplication.MidlWare
             _next = next;
         }
 
-
-
         public async Task InvokeAsync(HttpContext context, IConfiguration configuration)
         {
             /*
                 Authentifie les utilisateurs
             */
 
-            // Si l'URL est celle de l'endpoint de login, on passe à la suite sans valider le token
+            string authHeader = context.Request.Headers["Authorization"];
+            string UnauthMsg = "Welcome to vulnerableLightApp. You are not authenticated. Source code is available at https://github.com/Aif4thah/VulnerableLightApp";
+
+            // URL Without Authentication
             var path = context.Request.Path.Value;
             if (path.Equals("/login", StringComparison.OrdinalIgnoreCase) || path.StartsWith("/swagger", StringComparison.OrdinalIgnoreCase))
             {
@@ -51,12 +54,24 @@ namespace VulnerableWebApplication.MidlWare
                 return;
             }
 
-            string authHeader = context.Request.Headers["Authorization"];
+            // User Authentication
             if (authHeader.IsNullOrEmpty() || !VLAIdentity.VLAIdentity.VulnerableValidateToken(authHeader, configuration["Secret"]))
             {
                 context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                var bytes = Encoding.UTF8.GetBytes(UnauthMsg);
+                context.Response.Body.WriteAsync(bytes, 0, bytes.Length);
                 return;
             }
+
+            // Admin Authentication
+            if (path.StartsWith("/Patch", StringComparison.OrdinalIgnoreCase) && (authHeader.IsNullOrEmpty() || !VLAIdentity.VLAIdentity.VulnerableAdminValidateToken(authHeader, configuration["Secret"])) )
+            {
+                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                var bytes = Encoding.UTF8.GetBytes(UnauthMsg);
+                context.Response.Body.WriteAsync(bytes, 0, bytes.Length);
+                return;
+            }
+
             await _next(context);
         }
     }
