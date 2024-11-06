@@ -1,4 +1,4 @@
-name: "CodeQL Advanced"
+name: "CodeQL Advanced C# Analysis"
 
 on:
   push:
@@ -10,8 +10,8 @@ on:
 
 jobs:
   analyze:
-    name: Analyze (${{ matrix.language }})
-    runs-on: ${{ (matrix.language == 'swift' && 'macos-latest') || 'ubuntu-latest' }}
+    name: Analyze C# Code
+    runs-on: ubuntu-latest
     permissions:
       security-events: write
       packages: read
@@ -22,22 +22,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - language: javascript-typescript
-            build-mode: manual
-          - language: python
-            build-mode: none
-          - language: java-kotlin
-            build-mode: manual
-          - language: ruby
-            build-mode: none
-          - language: c-cpp
-            build-mode: manual
           - language: csharp
-            build-mode: none
-          - language: go
-            build-mode: none
-          - language: swift
-            build-mode: manual
+            build-mode: none  # Pas de build-mode manuel car JSON ne nécessite pas de compilation
 
     steps:
       - name: Checkout repository
@@ -47,33 +33,13 @@ jobs:
         uses: github/codeql-action/init@v3
         with:
           languages: ${{ matrix.language }}
-          build-mode: ${{ matrix.build-mode }}
-          # Utiliser des requêtes étendues pour capturer plus de vulnérabilités
-          queries: +security-extended,security-and-quality
+          queries: +security-extended,security-and-quality  # Requêtes étendues pour capturer plus de vulnérabilités
 
-      # Compilation manuelle pour les langages qui le nécessitent
-      - if: matrix.build-mode == 'manual'
-        shell: bash
+      - name: Build project
         run: |
-          if [[ "${{ matrix.language }}" == "java-kotlin" ]]; then
-            # Compilation pour un projet Java/Kotlin utilisant Gradle ou Maven
-            ./gradlew build || mvn compile
-          elif [[ "${{ matrix.language }}" == "javascript-typescript" ]]; then
-            # Compilation pour les projets Node.js
-            npm install && npm run build
-          elif [[ "${{ matrix.language }}" == "c-cpp" ]]; then
-            # Compilation pour les projets en C/C++
-            mkdir -p build && cd build
-            cmake .. && make
-          elif [[ "${{ matrix.language }}" == "swift" ]]; then
-            # Compilation pour les projets Swift
-            swift build
-          else
-            echo "Aucune compilation requise pour ${matrix.language}"
-          fi
+          dotnet build --configuration Release  # Construire le projet C#
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
         with:
-          category: "/language:${{matrix.language}}"
-
+          category: "/language:${{ matrix.language }}"
