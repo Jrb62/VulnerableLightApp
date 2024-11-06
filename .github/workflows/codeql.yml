@@ -21,16 +21,23 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Ajout de plusieurs langages pour l'analyse complète
         include:
           - language: javascript-typescript
+            build-mode: manual
           - language: python
+            build-mode: none
           - language: java-kotlin
+            build-mode: manual
           - language: ruby
+            build-mode: none
           - language: c-cpp
+            build-mode: manual
           - language: csharp
+            build-mode: none
           - language: go
+            build-mode: none
           - language: swift
+            build-mode: manual
 
     steps:
       - name: Checkout repository
@@ -41,20 +48,32 @@ jobs:
         with:
           languages: ${{ matrix.language }}
           build-mode: ${{ matrix.build-mode }}
-          # Utilisation de packs de requêtes étendus pour une analyse plus complète
+          # Utiliser des requêtes étendues pour capturer plus de vulnérabilités
           queries: +security-extended,security-and-quality
 
+      # Compilation manuelle pour les langages qui le nécessitent
       - if: matrix.build-mode == 'manual'
         shell: bash
         run: |
-          echo 'If you are using a "manual" build mode for one or more of the' \
-            'languages you are analyzing, replace this with the commands to build' \
-            'your code, for example:'
-          echo '  make bootstrap'
-          echo '  make release'
-          exit 1
+          if [[ "${{ matrix.language }}" == "java-kotlin" ]]; then
+            # Compilation pour un projet Java/Kotlin utilisant Gradle ou Maven
+            ./gradlew build || mvn compile
+          elif [[ "${{ matrix.language }}" == "javascript-typescript" ]]; then
+            # Compilation pour les projets Node.js
+            npm install && npm run build
+          elif [[ "${{ matrix.language }}" == "c-cpp" ]]; then
+            # Compilation pour les projets en C/C++
+            mkdir -p build && cd build
+            cmake .. && make
+          elif [[ "${{ matrix.language }}" == "swift" ]]; then
+            # Compilation pour les projets Swift
+            swift build
+          else
+            echo "Aucune compilation requise pour ${matrix.language}"
+          fi
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
         with:
           category: "/language:${{matrix.language}}"
+
