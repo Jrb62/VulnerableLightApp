@@ -1,29 +1,17 @@
-name: "CodeQL Advanced C# Analysis"
+name: "CodeQL C# Analysis"
 
 on:
   push:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
-  schedule:
-    - cron: '21 14 * * 3'
 
 jobs:
   analyze:
-    name: Analyze C# Code
+    name: CodeQL Analyze C#
     runs-on: ubuntu-latest
     permissions:
       security-events: write
-      packages: read
-      actions: read
-      contents: read
-
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - language: csharp
-            build-mode: none  # Pas de build-mode manuel car JSON ne nécessite pas de compilation
 
     steps:
       - name: Checkout repository
@@ -32,14 +20,11 @@ jobs:
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
         with:
-          languages: ${{ matrix.language }}
-          queries: +security-extended,security-and-quality  # Requêtes étendues pour capturer plus de vulnérabilités
+          languages: csharp
+          queries: +security-extended  # Utilisation minimale de requêtes pour réduire la taille du SARIF
 
       - name: Build project
-        run: |
-          dotnet build --configuration Release  # Construire le projet C#
+        run: dotnet build --configuration Release
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
-        with:
-          category: "/language:${{ matrix.language }}"
