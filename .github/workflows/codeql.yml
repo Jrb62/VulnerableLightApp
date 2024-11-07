@@ -21,7 +21,6 @@ jobs:
         uses: github/codeql-action/init@v3
         with:
           languages: csharp
-          queries: +security-extended  # Utilisation minimale de requêtes pour réduire la taille du SARIF
 
       - name: Build project
         run: dotnet build --configuration Release
